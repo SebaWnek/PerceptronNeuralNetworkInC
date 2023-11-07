@@ -16,25 +16,29 @@ layer* createLayer(int count, int prevCount, functionType type)
     newLayer->outputs = malloc(sizeof(float) * count);
     newLayer->gammas = malloc(sizeof(float) * count);
     newLayer->derivatives = malloc(sizeof(float) * count);
+    newLayer->learningRate = learningRateDefault;
+    newLayer->biasMultiplier = biasMultiplierDefault;
+    newLayer->weightsMultiplier = weightsMultiplierDefault;
+    newLayer->randRange = randRangeDefault;
     return newLayer;
 }
 
-float getRandom()
+float getRandom(layer *layer)
 {
     float randomValue = (float)rand() / (float)RAND_MAX;
-    return randomValue * (MAX_RAND - MIN_RAND) + MIN_RAND;
+    return randomValue * 2 * layer->randRange - layer->randRange;
 }
 
 void initializeLayer(layer *layer)
 {
     for(int i = 0; i < layer->valuesCount; i++)
     {
-        layer->biases[i] = getRandom() * biasMultiplier;
+        layer->biases[i] = getRandom(layer) * layer->biasMultiplier;
         layer->dbiases[i] = 0;
         layer->gammas[i] = 1;
         for(int j = 0; j < layer->previosValuesCount; j++)
         {
-            layer->weights[i * layer->previosValuesCount + j] = getRandom() * weightsMultiplier;
+            layer->weights[i * layer->previosValuesCount + j] = getRandom(layer) * layer->weightsMultiplier;
             layer->dweights[i * layer->previosValuesCount + j] = 0;
         }
     }
@@ -62,10 +66,12 @@ void calculateOutputsBase(layer *currentLayer, float *inputs, int inputsCount)
 
 void calculateDeltasBase(layer *currentLayer, float *previousValues, int previousValuesCount, float *nextValues, int nextValuesCount, bool outputs)
 {
+    //Calculate derivatives
     for(int i = 0; i < currentLayer->valuesCount; i++)
     {
         currentLayer->derivatives[i] = currentLayer->derivative(currentLayer->outputs[i]);
     }
+    //Calculate gammas
     if(outputs)
     {
         for(int i = 0; i < currentLayer->valuesCount; i++)
@@ -78,7 +84,6 @@ void calculateDeltasBase(layer *currentLayer, float *previousValues, int previou
         memset(currentLayer->gammas, 0, sizeof(float) * currentLayer->valuesCount);
         for(int i = 0; i < currentLayer->valuesCount; i++)
         {
-            currentLayer->gammas[i] = 0;
             for(int j = 0; j < nextValuesCount; j++)
             {
                 currentLayer->gammas[i] += nextValues[j] * currentLayer->weights[j * currentLayer->valuesCount + i];
@@ -86,6 +91,20 @@ void calculateDeltasBase(layer *currentLayer, float *previousValues, int previou
             currentLayer->gammas[i] *= currentLayer->derivatives[i];
         }
     }
+    //Calculate weights derivatives
+    for(int i = 0; i < currentLayer->valuesCount; i++)
+    {
+        for(int j = 0; j < previousValuesCount; j++)
+        {
+            currentLayer->dweights[i * previousValuesCount + j] = currentLayer->gammas[i] * previousValues[j];
+        }
+    }
+    //Calculate biases derivatives
+    for(int i = 0; i < currentLayer->valuesCount; i++)
+    {
+        currentLayer->dbiases[i] = currentLayer->gammas[i];
+    }
+
 }
 void calculateDeltasMiddle(layer *currentLayer, layer *previousLayer, layer *nextLayer)
 {
@@ -98,4 +117,29 @@ void calculateDeltasLast(layer *currentLayer, layer *previousLayer, float *nextV
 void calculateDeltasFirst(layer *currentLayer, float *previousValues, int previousValuesCount, layer *nextLayer)
 {
     calculateDeltasBase(currentLayer, previousValues, previousValuesCount, nextLayer->gammas, nextLayer->valuesCount, false);
+}
+
+void updateLayer(layer *layer)
+{
+    //Update weights
+    for(int i = 0; i < layer->valuesCount; i++)
+    {
+        for(int j = 0; j < layer->previosValuesCount; j++)
+        {
+            layer->weights[i * layer->previosValuesCount + j] += layer->dweights[i * layer->previosValuesCount + j] * layer->learningRate;
+        }
+    }
+    //Update biases
+    for(int i = 0; i < layer->valuesCount; i++)
+    {
+        layer->biases[i] += layer->dbiases[i] * layer->learningRate;
+    }
+}
+
+void updateMultipliers(layer *layer, float biasMultiplier, float weightsMultiplier, float learningRate, float randRange)
+{
+    layer->biasMultiplier = biasMultiplier;
+    layer->weightsMultiplier = weightsMultiplier;
+    layer->learningRate = learningRate;
+    layer->randRange = randRange;
 }

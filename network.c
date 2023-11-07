@@ -18,6 +18,15 @@ void createNetwork( int inputsCount, int layersCount, int *layersSizes, function
     }
 }
 
+void createNetworkWithMultipliers( int inputsCount, int layersCount, int *layersSizes, functionType *layersFunctions, float biasMultiplier, float weightsMultiplier, float learningRate, float randRange)
+{
+    createNetwork(inputsCount, layersCount, layersSizes, layersFunctions);
+    for(int i = 0; i < layersCount; i++)
+    {
+        updateMultipliers(currentNetwork->layers[i], biasMultiplier, weightsMultiplier, learningRate, randRange);
+    }
+}
+
 int getOutputs(float *outputs)
 {
     outputs = currentNetwork->layers[currentNetwork->layersCount - 1]->outputs;

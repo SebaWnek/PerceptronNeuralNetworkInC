@@ -3,13 +3,10 @@
 
 #include "functions.h"
 
-//Allowing to change random numbers generator behavoiur
-#define MIN_RAND = -1f
-#define MAX_RAND = 1f
-
-float learningRate = 0.00005;
-float biasMultiplier = 10;
-float weightsMultiplier = 2;
+float learningRateDefault = 0.00005;
+float biasMultiplierDefault = 10.0f;
+float weightsMultiplierDefault = 2.0f;
+float randRangeDefault = 1.0f;
 
 typedef struct
 {
@@ -23,12 +20,26 @@ typedef struct
     float *dbiases;
     float *outputs;
     float *gammas;
+    float *derivatives;
+    float learningRate;
+    float biasMultiplier;
+    float weightsMultiplier;
+    float randRange;
 } layer;
 
 layer* createLayer(int count, int prevCount, functionType type);
 void initializeLayer(layer *layer);
+
 void calculateOutputs(layer *currentLayer, layer *previousLayer);
+void calculateOutputsBase(layer *currentLayer, float *inputs, int inputsCount);
 
+void calculateDeltasBase(layer *currentLayer, float *previousValues, int previousValuesCount, float *nextValues, int nextValuesCount, bool outputs);
+void calculateDeltasMiddle(layer *currentLayer, layer *previousLayer, layer *nextLayer);
+void calculateDeltasLast(layer *currentLayer, layer *previousLayer, float *nextValues, int nextValuesCount);
+void calculateDeltasFirst(layer *currentLayer, float *previousValues, int previousValuesCount, layer *nextLayer);
 
+void updateLayer(layer *layer);
+
+void updateMultipliers(layer *layer, float biasMultiplier, float weightsMultiplier, float learningRate, float randRange);
 
 #endif // LAYER_H
