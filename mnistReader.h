@@ -13,7 +13,10 @@
 #define MNIST_TEST_IMAGES_FILE "t10k-images.idx3-ubyte"
 #define MNIST_TEST_LABELS_FILE "t10k-labels.idx1-ubyte"
 
-typedef uint8_t mnistImage[MNIST_IMAGE_SIZE];
+typedef struct
+{
+    float pixels[MNIST_IMAGE_SIZE];
+} mnistImage;
 
 typedef enum
 {

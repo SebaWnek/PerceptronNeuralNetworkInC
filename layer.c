@@ -1,6 +1,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "layer.h"
+
+float learningRateDefault = 0.00005;
+float biasMultiplierDefault = 10.0f;
+float weightsMultiplierDefault = 2.0f;
+float randRangeDefault = 1.0f;
 
 layer* createLayer(int count, int prevCount, functionType type)
 {

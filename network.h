@@ -1,10 +1,15 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-void createNetwork( int inputsCount, int layersCount, int *layersSizes, functionType *layersFunctions);
+#include <stdbool.h>
+#include "functions.h"
+#include "layer.h"
+
+bool createNetwork(int inputsCount, int outputsCount, int layersCount, int *layersSizes, functionType *layersFunctions);
+bool createNetworkWithMultipliers( int inputsCount, int outputsCount, int layersCount, int *layersSizes, functionType *layersFunctions, float biasMultiplier, float weightsMultiplier, float learningRate, float randRange);
 int getOutputs(float *outputs);
-void calculateNetwork(float *inputs, int inputsCount);
-void trainNetwork(float *inputs, int inputsCount, float *expected, int expectedCount);
+bool calculateNetwork(float *inputs, int inputsCount);
+bool trainNetwork(float *inputs, int inputsCount, float *expected, int expectedCount);
 
 typedef struct
 {

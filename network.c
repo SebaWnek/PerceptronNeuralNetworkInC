@@ -1,30 +1,46 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "network.h"
 #include "layer.h"
 
 void calculateBackPropagation(float *desiredOutput, int outputsCount);
 
 network *currentNetwork;
+bool initialized = false;
 
-void createNetwork( int inputsCount, int layersCount, int *layersSizes, functionType *layersFunctions)
+bool createNetwork( int inputsCount, int outputsCount, int layersCount, int *layersSizes, functionType *layersFunctions)
 {
+    if(initialized)
+    {
+        printf("Error: network already initialized\n");
+        return false;
+    }
     currentNetwork = malloc(sizeof(network));
     currentNetwork->layersCount = layersCount;
     currentNetwork->layers = malloc(sizeof(layer*) * layersCount);
     currentNetwork->inputs = malloc(sizeof(float) * inputsCount);
-    for(int i = 0; i < layersCount; i++)
+    for(int i = 0; i-1 < layersCount; i++)
     {
         currentNetwork->layers[i] = createLayer(layersSizes[i], i == 0 ? inputsCount : layersSizes[i - 1], layersFunctions[i]);
         initializeLayer(currentNetwork->layers[i]);
     }
+    currentNetwork->layers[layersCount - 1] = createLayer(outputsCount, layersSizes[layersCount - 2], layersFunctions[layersCount - 1]);
+    initialized = true;
+    return true;
 }
 
-void createNetworkWithMultipliers( int inputsCount, int layersCount, int *layersSizes, functionType *layersFunctions, float biasMultiplier, float weightsMultiplier, float learningRate, float randRange)
+bool createNetworkWithMultipliers( int inputsCount, int outputsCount, int layersCount, int *layersSizes, functionType *layersFunctions, float biasMultiplier, float weightsMultiplier, float learningRate, float randRange)
 {
-    createNetwork(inputsCount, layersCount, layersSizes, layersFunctions);
+    bool done = createNetwork(inputsCount, outputsCount, layersCount, layersSizes, layersFunctions);
+    if(!done)
+    {
+        return false;
+    }
     for(int i = 0; i < layersCount; i++)
     {
         updateMultipliers(currentNetwork->layers[i], biasMultiplier, weightsMultiplier, learningRate, randRange);
     }
+    return true;
 }
 
 int getOutputs(float *outputs)
@@ -33,9 +49,14 @@ int getOutputs(float *outputs)
     return currentNetwork->layers[currentNetwork->layersCount - 1]->valuesCount;
 }
 
-void calculateNetwork(float *inputs, int inputsCount)
+bool calculateNetwork(float *inputs, int inputsCount)
 {
-    calculateFirstOutputs(currentNetwork->layers[0], inputs, inputsCount);
+    if(initialized == false)
+    {
+        printf("Error: network not initialized\n");
+        return false;
+    }
+    calculateOutputsBase(currentNetwork->layers[0], inputs, inputsCount);
     if(currentNetwork->layersCount > 1)
     {
         for(int i = 1; i < currentNetwork->layersCount; i++)
@@ -43,12 +64,21 @@ void calculateNetwork(float *inputs, int inputsCount)
             calculateOutputs(currentNetwork->layers[i], currentNetwork->layers[i - 1]);
         }
     }
+    return true;
 }
-void trainNetwork(float *inputs, int inputsCount, float *expected, int expectedCount)
+
+bool trainNetwork(float *inputs, int inputsCount, float *expected, int expectedCount)
 {
+    if(initialized == false)
+    {
+        printf("Error: network not initialized\n");
+        return false;
+    }
     calculateNetwork(inputs, inputsCount);
     calculateBackPropagation(expected, expectedCount);
+    return true;
 }
+
 void calculateBackPropagation(float *desiredOutput, int outputsCount)
 {
     if(currentNetwork->layersCount == 1)

@@ -3,11 +3,6 @@
 
 #include "functions.h"
 
-float learningRateDefault = 0.00005;
-float biasMultiplierDefault = 10.0f;
-float weightsMultiplierDefault = 2.0f;
-float randRangeDefault = 1.0f;
-
 typedef struct
 {
     activationFunction function;

@@ -10,7 +10,8 @@ typedef enum {
     SIGMOID,
     RELU,
     LEAKYRELU,
-    LINEAR
+    LINEAR,
+    functionTypesCount
 } functionType;
 
 activationFunction getActivationFunction(functionType type, bool derivative);
