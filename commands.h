@@ -12,6 +12,7 @@
 #define TEST_CMD "test"
 #define HELP_CMD "help"
 #define DISPLAY_CMD "display"
+#define PRINT_INFO_CMD "printinfo"
 
 #define CREATE_NETWORK_ARG_COUNT 0
 #define UPDATE_NETWORK_ARG_COUNT 0
@@ -22,6 +23,7 @@
 #define TEST_ARG_COUNT 0
 #define HELP_ARG_COUNT 0
 #define DISPLAY_ARG_COUNT 2 // 1 argument - image index, 2 argument - 0 for training set, 1 for test set
+#define PRINT_INFO_ARG_COUNT 1 // 1 argument - 0 for base info, 1 for detailed info
 
 #define CREATE_NETWORK_DESCRIPTION "Initializes neural network"
 #define UPDATE_NETWORK_DESCRIPTION "Updates neural network"
@@ -32,7 +34,7 @@
 #define TEST_DESCRIPTION "Tests neural network"
 #define HELP_DESCRIPTION "Shows help"
 #define DISPLAY_DESCRIPTION "Displays image\nArguments: 1: image index, 2: 0 for training set, 1 for test set"
-
+#define PRINT_INFO_DESCRIPTION "Prints info about neural network\nArguments: 1: 0 for base info, 1 for detailed info"
 
 typedef void (*commandFunction)(uint16_t *arg);
 
@@ -54,7 +56,8 @@ command commands[] =
     {TRAIN_CMD, TRAIN_ARG_COUNT, NULL, TRAIN_DESCRIPTION},
     {TEST_CMD, TEST_ARG_COUNT, NULL, TEST_DESCRIPTION},
     {HELP_CMD, HELP_ARG_COUNT, NULL, HELP_DESCRIPTION},
-    {DISPLAY_CMD, DISPLAY_ARG_COUNT, NULL, DISPLAY_DESCRIPTION}
+    {DISPLAY_CMD, DISPLAY_ARG_COUNT, NULL, DISPLAY_DESCRIPTION},
+    {PRINT_INFO_CMD, PRINT_INFO_ARG_COUNT, NULL, PRINT_INFO_DESCRIPTION}
 };
 
 uint8_t commandCount = sizeof(commands) / sizeof(command);

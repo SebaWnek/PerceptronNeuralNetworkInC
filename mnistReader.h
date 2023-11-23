@@ -8,10 +8,10 @@
 #define MNIST_TRAINING_COUNT 60000
 #define MNIST_TEST_COUNT 10000
 #define MNIST_IMAGE_SIZE 784
-#define MNIST_TRAINING_IMAGES_FILE "train-images.idx3-ubyte"
-#define MNIST_TRAINING_LABELS_FILE "train-labels.idx1-ubyte"
-#define MNIST_TEST_IMAGES_FILE "t10k-images.idx3-ubyte"
-#define MNIST_TEST_LABELS_FILE "t10k-labels.idx1-ubyte"
+#define MNIST_TRAINING_IMAGES_FILE "train-images.idx3-ubyte.bin"
+#define MNIST_TRAINING_LABELS_FILE "train-labels.idx1-ubyte.bin"
+#define MNIST_TEST_IMAGES_FILE "t10k-images.idx3-ubyte.bin"
+#define MNIST_TEST_LABELS_FILE "t10k-labels.idx1-ubyte.bin"
 
 typedef struct
 {

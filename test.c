@@ -12,6 +12,8 @@
 
 bool readInput(command *cmd, uint16_t *arg);
 bool getCommand(command *cmdOut, char *buffer);
+void clearInputBuffer();
+void blockFromValue(float value);
 
 void assignCommands();
 
@@ -24,6 +26,7 @@ void updateNetwork(uint16_t *arg);
 void trainNewNetwork(uint16_t *arg);
 void testNetwork(uint16_t *arg);
 void displayImage(uint16_t *arg);
+void printInfo(uint16_t *arg);
 
 mnistData *trainingData;
 mnistData *testData;
@@ -33,7 +36,7 @@ int main()
 {
     uint16_t arg[ARG_BUFFER_SIZE];
     command cmd;
-    
+
     assignCommands();
     printf("Welcome to neural network test program\n\n");
     showHelp(NULL); 
@@ -43,7 +46,6 @@ int main()
         printf("Enter command:\n");
         while(!readInput(&cmd, arg));
 #ifdef DEBUG
-        printf("Command addr in main: %p\n", &(cmd.name));
         printf("Command: %s\n", cmd.name);
         printf("Arguments: ");
         for(uint8_t i=0; i < cmd.argCount; i++)
@@ -53,13 +55,14 @@ int main()
         printf("\n");
 #endif
         cmd.function(arg);
+        // clearInputBuffer();
     }
     return 0;
 }
 
 bool readInput(command *cmd, uint16_t *arg)
 {
-    char buffer[TEXT_BUFFER_SIZE];
+    char *buffer = malloc(TEXT_BUFFER_SIZE * sizeof(char));
     char c;
     char *token;
     uint8_t i=0;
@@ -73,13 +76,13 @@ bool readInput(command *cmd, uint16_t *arg)
             return false;
         }
     }
+    buffer[i] = '\0';
 #ifdef DEBUG
     printf("Buffer: %s\n", buffer);
 #endif
     token = strtok(buffer, " ");
 #ifdef DEBUG
     printf("Token: %s\n", token);
-    printf("Command addr in read: %p\n", cmd->name);
 #endif
     if(!getCommand(cmd, token))
     {
@@ -99,6 +102,7 @@ bool readInput(command *cmd, uint16_t *arg)
         }
         arg[i] = atoi(token);
     }
+    free(buffer);
     return true;
 }
 
@@ -112,10 +116,9 @@ bool getCommand(command *cmdOut, char *bufferIn)
     {
         if(strcmp(bufferIn, commands[i].name) == 0)
         {
-            memccpy(cmdOut, &commands[i], sizeof(command), sizeof(command));
+            memcpy(cmdOut, &commands[i], sizeof(command));
 #ifdef DEBUG
             printf("Command: %s\n", cmdOut->name);
-            printf("Command addr in get: %p\n", cmdOut->name);
 #endif
             return true;
         }
@@ -134,6 +137,7 @@ void assignCommands()
     commands[6].function = testNetwork;    //test
     commands[7].function = showHelp;    //help
     commands[8].function = displayImage;    //display
+    commands[9].function = printInfo;    //printinfo
 }
 
 void showHelp(uint16_t *empty)
@@ -147,7 +151,22 @@ void showHelp(uint16_t *empty)
 
 void showLoadedCount(uint16_t *empty)
 {
-    printf("Loaded images count:\ntraining set - %d\ntest set - %d\n", trainingData->imagesCount, testData->imagesCount);
+    if(trainingData != NULL)
+    {
+        printf("Training set loaded: %d images\n", trainingData->imagesCount);
+    }
+    else
+    {
+        printf("Training set not loaded\n");
+    }
+    if(testData != NULL)
+    {
+        printf("Test set loaded: %d images\n", testData->imagesCount);
+    }
+    else
+    {
+        printf("Test set not loaded\n");
+    }
 }
 
 void loadNImages(uint16_t *args)
@@ -219,11 +238,16 @@ void createNewNetwork(uint16_t *arg)
 
     printf("Use default values? (y/n)\n");
     char c;
-    while((c = getchar()) != 'y' && c != 'n')
+    scanf("%c", &c);
+    clearInputBuffer();
+    /*while((c = getchar()) != EOF && c != '\n')
     {
+        if(c == 'y' || c == 'n')
+        {
+            break;
+        }
         printf("Error: invalid input\n");
-    }
-    while((c = getchar()) != '\n' && c != EOF); // remove rest of input
+    }*/
 #ifdef DEBUG
     printf("c: %c\n", c);
     printf("c: %d\n", c);
@@ -425,8 +449,27 @@ void displayImage(uint16_t *arg)
         {
             printf("\n");
         }
-        printf("%.2f", data->images[index].pixels[i]);
+        blockFromValue(data->images[index].pixels[i]);
     }
     printf("\n");
 }
 
+void clearInputBuffer()
+{
+    char c;
+    while((c = getchar()) != EOF && c != '\n');
+}
+
+void printInfo(uint16_t *arg)
+{
+    printNetworkInfo((bool)arg[0]);
+}
+
+void blockFromValue(float value)
+{
+    if(value < 0.1) printf(" ");
+    else if(value < 0.3) printf("\u2591");
+    else if(value < 0.5) printf("\u2592");
+    else if(value < 0.7) printf("\u2593");
+    else printf("\u2588");
+}

@@ -10,6 +10,9 @@ bool createNetworkWithMultipliers( int inputsCount, int outputsCount, int layers
 int getOutputs(float *outputs);
 bool calculateNetwork(float *inputs, int inputsCount);
 bool trainNetwork(float *inputs, int inputsCount, float *expected, int expectedCount);
+void printBaseInfo();
+void printNetworkInfo(bool detailed);
+void printLayerValues(layer *layer);
 
 typedef struct
 {

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
 #include "layer.h"
 
 float learningRateDefault = 0.00005;
@@ -8,10 +9,19 @@ float biasMultiplierDefault = 10.0f;
 float weightsMultiplierDefault = 2.0f;
 float randRangeDefault = 1.0f;
 
+bool randInitialized = false;
+
 layer* createLayer(int count, int prevCount, functionType type)
 {
+    if(!randInitialized)
+    {
+        srand(time(NULL));
+        randInitialized = true;
+    }
+
     layer *newLayer = malloc(sizeof(layer));
     newLayer->function = getActivationFunction(type, false);
+    newLayer->type = type;
     newLayer->derivative = getActivationFunction(type, true);
     newLayer->valuesCount = count;
     newLayer->previosValuesCount = prevCount;

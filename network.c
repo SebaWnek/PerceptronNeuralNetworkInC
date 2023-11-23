@@ -16,6 +16,7 @@ bool createNetwork( int inputsCount, int outputsCount, int layersCount, int *lay
         return false;
     }
     currentNetwork = malloc(sizeof(network));
+    currentNetwork->inputsCount = inputsCount;
     currentNetwork->layersCount = layersCount;
     currentNetwork->layers = malloc(sizeof(layer*) * layersCount);
     currentNetwork->inputs = malloc(sizeof(float) * inputsCount);
@@ -87,7 +88,7 @@ void calculateBackPropagation(float *desiredOutput, int outputsCount)
     }
     else
     {
-        for(int i = currentNetwork->layersCount -1; i >= 0; i++)
+        for(int i = currentNetwork->layersCount -1; i >= 0; i--)
         {
             if(i == currentNetwork->layersCount - 1)
             {
@@ -103,8 +104,47 @@ void calculateBackPropagation(float *desiredOutput, int outputsCount)
             }
         }
     }
-    for(int i = currentNetwork->layersCount -1; i >= 0; i++)
+    for(int i = currentNetwork->layersCount -1; i >= 0; i--)
     {
         updateLayer(currentNetwork->layers[i]);
     }
+}
+
+void printNetworkInfo(bool detailed)
+{
+    printf("Network info:\n");
+    printf("Inputs count: %d\n", currentNetwork->inputsCount);
+    printf("Layers count: %d\n", currentNetwork->layersCount);
+    printf("Layers info:\n");
+    for(int i = 0; i < currentNetwork->layersCount; i++)
+    {
+        printf("Layer %d:\n", i);
+        printf("Values count: %d\n", currentNetwork->layers[i]->valuesCount);
+        printf("Function: %d (0 - TanH, 1 - Sigmoid, 2 - ReLu, 3 - LeakyReLu, 4 - Linear)\n", currentNetwork->layers[i]->type);
+        printf("Function pointer: %p\n", currentNetwork->layers[i]->function);
+        printf("Bias multiplier: %f\n", currentNetwork->layers[i]->biasMultiplier);
+        printf("Weights multiplier: %f\n", currentNetwork->layers[i]->weightsMultiplier);
+        printf("Learning rate: %f\n", currentNetwork->layers[i]->learningRate);
+        printf("Random range: %f\n", currentNetwork->layers[i]->randRange);
+        if(detailed) printLayerValues(&currentNetwork->layers[i]);
+    }
+}
+
+void printLayerValues(layer *layer)
+{
+    printf("Weights:\n");
+    for(int i = 0; i < layer->valuesCount; i++)
+    {
+        for(int j = 0; j < layer->previosValuesCount; j++)
+        {
+            printf("%f ", layer->weights[i * layer->previosValuesCount + j]);
+        }
+        printf("\n");
+    }
+    printf("Biases:\n");
+    for(int i = 0; i < layer->valuesCount; i++)
+    {
+        printf("%f ", layer->biases[i]);
+    }
+    printf("\n");
 }

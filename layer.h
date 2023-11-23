@@ -6,6 +6,7 @@
 typedef struct
 {
     activationFunction function;
+    functionType type;
     activationFunction derivative;
     int valuesCount;
     int previosValuesCount;

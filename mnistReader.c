@@ -34,6 +34,11 @@ mnistData *readMnistN(uint32_t count, mnistType type)
 
     FILE *imagesFile = fopen(imagesPath, "rb");
     FILE *labelsFile = fopen(labelsPath, "rb");
+    if(imagesFile == NULL || labelsFile == NULL)
+    {
+        printf("Error opening files!\n");
+        exit(1);
+    }
     fseek(imagesFile, MNIST_OFFSET_IMAGES, SEEK_SET);
     fseek(labelsFile, MNIST_OFFSET_LABELS, SEEK_SET);
     fread(tmpData, MNIST_IMAGE_SIZE, count, imagesFile);
