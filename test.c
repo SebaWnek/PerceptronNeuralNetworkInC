@@ -27,6 +27,7 @@ void trainNewNetwork(uint16_t *arg);
 void testNetwork(uint16_t *arg);
 void displayImage(uint16_t *arg);
 void printInfo(uint16_t *arg);
+void calculateFromLoaded(uint16_t *arg);
 
 mnistData *trainingData;
 mnistData *testData;
@@ -138,6 +139,7 @@ void assignCommands()
     commands[7].function = showHelp;    //help
     commands[8].function = displayImage;    //display
     commands[9].function = printInfo;    //printinfo
+    commands[10].function = calculateFromLoaded;    //calcloaded
 }
 
 void showHelp(uint16_t *empty)
@@ -467,9 +469,39 @@ void printInfo(uint16_t *arg)
 
 void blockFromValue(float value)
 {
-    if(value < 0.1) printf(" ");
-    else if(value < 0.3) printf("\u2591");
-    else if(value < 0.5) printf("\u2592");
-    else if(value < 0.7) printf("\u2593");
-    else printf("\u2588");
+    if(value < 0.1) printf("  ");
+    else if(value < 0.3) printf("\u2591\u2591");
+    else if(value < 0.5) printf("\u2592\u2592");
+    else if(value < 0.7) printf("\u2593\u2593");
+    else printf("\u2588\u2588");
+}
+
+void calculateFromLoaded(uint16_t *arg)
+{
+    float *outputs;
+    int index = arg[0];
+    mnistType type = (mnistType)arg[1];
+    mnistData *data = type == MNIST_TRAINING ? trainingData : testData;
+    if(data == NULL)
+    {
+        printf("Error: data not loaded\n");
+        return;
+    }
+    if(index < 0 || index >= data->imagesCount)
+    {
+        printf("Error: invalid index\n");
+        return;
+    }
+    calculateNetwork(data->images[index].pixels, MNIST_IMAGE_SIZE);
+    int count = getOutputs(outputs);
+    if(count != 10)
+    {
+        printf("Error: invalid outputs count\n");
+        return;
+    }
+    printf("Outputs:\n");
+    for(int i = 0; i < 10; i++)
+    {
+        printf("%d: %f\n", i, outputs[i]);
+    }
 }
